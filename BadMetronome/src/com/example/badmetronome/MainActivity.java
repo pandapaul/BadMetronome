@@ -13,6 +13,7 @@ public class MainActivity extends Activity {
 	SeekBar speedBar, accuracyBar;
 	Button playPause;
 	int speed, accuracy;
+	boolean playing;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class MainActivity extends Activity {
 		
 		speed = speedBar.getProgress();
 		accuracy = accuracyBar.getProgress();
+		playing = false;
 		
 		playPause.setOnClickListener(new Button.OnClickListener() {
 			@Override
