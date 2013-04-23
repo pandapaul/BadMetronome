@@ -7,10 +7,12 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	
 	SeekBar speedBar, accuracyBar;
+	TextView speedText, accuracyText;
 	Button playbackButton;
 	Metronome metronome;
 	
@@ -22,6 +24,8 @@ public class MainActivity extends Activity {
 		speedBar = (SeekBar) this.findViewById(R.id.speedBar);
 		accuracyBar = (SeekBar) this.findViewById(R.id.accuracyBar);
 		playbackButton = (Button) this.findViewById(R.id.button1);
+		speedText = (TextView) this.findViewById(R.id.bpm);
+		accuracyText = (TextView) this.findViewById(R.id.accuracy);
 		
 		playbackButton.setOnClickListener(new Button.OnClickListener() {
 			@Override
@@ -34,7 +38,8 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				metronome.setSpeed(progress);
+				metronome.setSpeed(progress+1);
+				speedText.setText(String.valueOf(progress+1));
 			}
 
 			@Override
@@ -53,6 +58,7 @@ public class MainActivity extends Activity {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 				metronome.setAccuracy(progress);
+				accuracyText.setText(String.valueOf(progress));
 			}
 
 			@Override
@@ -67,8 +73,9 @@ public class MainActivity extends Activity {
 		});
 		
 		MediaPlayer player = MediaPlayer.create(this, R.raw.tablasnap);
-		metronome = new Metronome(speedBar.getProgress(), accuracyBar.getProgress(), player);
-		
+		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), player);
+		speedText.setText(String.valueOf(speedBar.getProgress()+1));
+		accuracyText.setText(String.valueOf(accuracyBar.getProgress()));
 	}
 
 	@Override

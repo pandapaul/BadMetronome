@@ -8,25 +8,64 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView1"
+        android:layout_alignBottom="@+id/textView1"
+        android:layout_toRightOf="@+id/button1"
+        android:text="Accuracy"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/accuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/bpm"
+        android:layout_alignBottom="@+id/bpm"
+        android:layout_toRightOf="@+id/button1"
+        android:text="###"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bpm"
+        android:layout_marginRight="121dp"
+        android:layout_toLeftOf="@+id/accuracy"
+        android:text="BPM"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
     <SeekBar
         android:id="@+id/speedBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="104dp"
-        android:max="400"
-        android:progress="100" />
+        android:layout_below="@+id/textView3"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:max="199"
+        android:progress="99" />
 
     <SeekBar
         android:id="@+id/accuracyBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_below="@+id/speedBar"
-        android:layout_marginTop="34dp"
+        android:layout_centerHorizontal="true"
         android:max="100"
         android:progress="100" />
+
+    <TextView
+        android:id="@+id/bpm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/textView1"
+        android:layout_marginTop="39dp"
+        android:text="###"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
         android:id="@+id/button1"
@@ -34,7 +73,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/accuracyBar"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="35dp"
         android:text="Play/Pause" />
 
 </RelativeLayout>
