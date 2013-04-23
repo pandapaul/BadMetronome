@@ -1,5 +1,9 @@
 package com.jpapps.badmetronome;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import android.graphics.Canvas;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.util.Log;
@@ -12,10 +16,11 @@ public class Metronome {
 	private int speed, accuracy;
 	private MediaPlayer player;
 	
-	protected int delay;
+	protected long delay;
 	protected boolean playing;
-	protected Handler playbackHandler;
+	protected Thread playbackThread;
 	protected Runnable playbackRunnable;
+	protected long lastTime;
 	
 	public Metronome(MediaPlayer player) {
 		this(DEFAULT_SPEED, player);
@@ -26,10 +31,11 @@ public class Metronome {
 	}
 	
 	public Metronome(int speed, int accuracy, MediaPlayer player) {
-		this.setSpeed(speed);
+		playing = false;
+		lastTime = 0;
 		this.setAccuracy(accuracy);
 		this.setPlayer(player);
-		playing = false;
+		this.setSpeed(speed);
 	}
 
 	public int getSpeed() {
@@ -56,32 +62,45 @@ public class Metronome {
 			 duration = player.getDuration();
 		double beatLength = 60000.0 / speed;
 		delay = (int)Math.round(beatLength) - duration;
-		return delay;
+		return Math.max(delay, 0);
 	}
 	
 	public void start() {
-		playbackHandler = new Handler();
+		
 		playbackRunnable = new Runnable() {
 			@Override
-			public void run() {
-				if(player.isPlaying()) {
-					player.seekTo(0);
-				} else {
-					player.start();
-				}
-				playbackHandler.postDelayed(this, delay);
+			public void run() {		
+				while (playing) {
+		        	long beforeTime = System.nanoTime();
+		            
+		        	if(player.isPlaying()) {
+		        		player.seekTo(0);
+					} else {
+						player.start();
+					}
+		        	
+		            long adjustedSleepTime = delay - ((System.nanoTime()-beforeTime)/1000000L);
+		            
+		            try {
+		            	if(adjustedSleepTime > 0)
+		            		Thread.sleep(adjustedSleepTime);
+		            } catch (InterruptedException e) {
+		            	Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, e);
+		            }
+		        }
 			}
 		};
-		playbackHandler.post(playbackRunnable);
+		
 		playing = true;
+		
+		playbackThread = new Thread(playbackRunnable);
+		playbackThread.start();
 	}
 	
 	public void stop() {
 		if(player.isPlaying()){
 			player.pause();
 		}
-		if(playbackHandler != null)
-			playbackHandler.removeCallbacks(playbackRunnable);
 		playing = false;
 	}
 	
