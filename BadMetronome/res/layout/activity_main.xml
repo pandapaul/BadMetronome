@@ -14,7 +14,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="104dp" />
+        android:layout_marginTop="104dp"
+        android:max="400"
+        android:progress="100" />
 
     <SeekBar
         android:id="@+id/accuracyBar"
@@ -22,7 +24,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/speedBar"
-        android:layout_marginTop="34dp" />
+        android:layout_marginTop="34dp"
+        android:max="100"
+        android:progress="100" />
 
     <Button
         android:id="@+id/button1"

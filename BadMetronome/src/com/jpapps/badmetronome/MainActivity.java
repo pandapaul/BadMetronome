@@ -77,5 +77,17 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		if(metronome != null) metronome.stop();
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		if(metronome != null) metronome.stop();
+	}
 
 }
