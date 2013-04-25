@@ -62,6 +62,9 @@ public class Metronome {
 			 duration = player.getDuration();
 		double beatLength = 60000.0 / speed;
 		delay = (int)Math.round(beatLength) - duration;
+		
+		Log.w("BadMetronome", "Delay = " + delay);
+		
 		return Math.max(delay, 0);
 	}
 	
