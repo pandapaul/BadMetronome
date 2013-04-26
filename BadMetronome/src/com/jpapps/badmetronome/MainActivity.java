@@ -89,17 +89,18 @@ public class MainActivity extends Activity {
 		//MediaPlayer player = MediaPlayer.create(this, R.raw.tablasnap);
 		//metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), player);
 		InputStream is = this.getResources().openRawResource(R.raw.tablasnap);
-		BufferedInputStream bis = new BufferedInputStream(is, 8000);
-		DataInputStream dis = new DataInputStream(bis);
+		//BufferedInputStream bis = new BufferedInputStream(is, 8000);
+		//DataInputStream dis = new DataInputStream(bis);
 		
 		byte[] sound = new byte[TABLA_SNAP_BYTES];
 		try {
-			dis.read(sound);
+			is.read(sound);
 		} catch (IOException e) {
 			Log.e("BadMetronome", "Error while reading in sound file.");
 		}
 		
 		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), sound);
+		
 		speedText.setText(String.valueOf(speedBar.getProgress()+1));
 		accuracyText.setText(String.valueOf(accuracyBar.getProgress()));
 	}
