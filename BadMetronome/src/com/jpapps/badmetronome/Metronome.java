@@ -14,25 +14,21 @@ public class Metronome {
 	public static final int MAX_ACCURACY = 100;
 	
 	private int speed, accuracy;
-	private MediaPlayer player;
 	private boolean playing;
+	private byte[] sound;
 	
-	private long delay;
-	private Thread playbackThread;
-	private Runnable playbackRunnable;
-	
-	public Metronome(MediaPlayer player) {
-		this(DEFAULT_SPEED, player);
+	public Metronome(byte[] sound) {
+		this(DEFAULT_SPEED, sound);
 	}
 	
-	public Metronome(int speed, MediaPlayer player) {
-		this(speed, MAX_ACCURACY, player);
+	public Metronome(int speed, byte[] sound) {
+		this(speed, MAX_ACCURACY, sound);
 	}
 	
-	public Metronome(int speed, int accuracy, MediaPlayer player) {
+	public Metronome(int speed, int accuracy, byte[] sound) {
 		playing = false;
 		this.setAccuracy(accuracy);
-		this.setPlayer(player);
+		this.setSound(sound);
 		this.setSpeed(speed);
 	}
 
@@ -42,7 +38,6 @@ public class Metronome {
 
 	public void setSpeed(int speed) {
 		this.speed = speed;
-		delay = calculateDelay();
 	}
 
 	public int getAccuracy() {
@@ -56,8 +51,6 @@ public class Metronome {
 	private int calculateDelay() {
 		int delay = 0;
 		int duration = 0;
-		if(player!=null)
-			 duration = player.getDuration();
 		double beatLength = 60000.0 / speed;
 		delay = (int)Math.round(beatLength) - duration;
 		
@@ -66,40 +59,10 @@ public class Metronome {
 	
 	public void start() {
 		
-		playbackRunnable = new Runnable() {
-			@Override
-			public void run() {		
-				while (playing) {
-		        	long beforeTime = System.nanoTime();
-		            
-		        	if(player.isPlaying()) {
-		        		player.seekTo(0);
-					} else {
-						player.start();
-					}
-		        	
-		            long adjustedSleepTime = delay - ((System.nanoTime()-beforeTime)/1000000L);
-		            
-		            try {
-		            	if(adjustedSleepTime > 0)
-		            		Thread.sleep(adjustedSleepTime);
-		            } catch (InterruptedException e) {
-		            	Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, e);
-		            }
-		        }
-			}
-		};
-		
 		playing = true;
-		
-		playbackThread = new Thread(playbackRunnable);
-		playbackThread.start();
 	}
 	
 	public void stop() {
-		if(player.isPlaying()){
-			player.pause();
-		}
 		playing = false;
 	}
 	
@@ -111,17 +74,17 @@ public class Metronome {
 			this.start();
 		}
 	}
-
-	public MediaPlayer getPlayer() {
-		return player;
-	}
-
-	public void setPlayer(MediaPlayer player) {
-		this.player = player;
-	}
 	
 	public boolean isPlaying() {
 		return playing;
+	}
+
+	public byte[] getSound() {
+		return sound;
+	}
+
+	public void setSound(byte[] sound) {
+		this.sound = sound;
 	}
 	
 }

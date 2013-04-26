@@ -1,8 +1,14 @@
 package com.jpapps.badmetronome;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.WindowManager;
@@ -11,6 +17,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+	
+	static final int TABLA_SNAP_BYTES = 17638;
 	
 	SeekBar speedBar, accuracyBar;
 	TextView speedText, accuracyText;
@@ -78,8 +86,20 @@ public class MainActivity extends Activity {
 			}
 		});
 		
-		MediaPlayer player = MediaPlayer.create(this, R.raw.tablasnap);
-		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), player);
+		//MediaPlayer player = MediaPlayer.create(this, R.raw.tablasnap);
+		//metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), player);
+		InputStream is = this.getResources().openRawResource(R.raw.tablasnap);
+		BufferedInputStream bis = new BufferedInputStream(is, 8000);
+		DataInputStream dis = new DataInputStream(bis);
+		
+		byte[] sound = new byte[TABLA_SNAP_BYTES];
+		try {
+			dis.read(sound);
+		} catch (IOException e) {
+			Log.e("BadMetronome", "Error while reading in sound file.");
+		}
+		
+		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), sound);
 		speedText.setText(String.valueOf(speedBar.getProgress()+1));
 		accuracyText.setText(String.valueOf(accuracyBar.getProgress()));
 	}
