@@ -15,12 +15,11 @@ public class Metronome {
 	
 	private int speed, accuracy;
 	private MediaPlayer player;
+	private boolean playing;
 	
-	protected long delay;
-	protected boolean playing;
-	protected Thread playbackThread;
-	protected Runnable playbackRunnable;
-	protected long lastTime;
+	private long delay;
+	private Thread playbackThread;
+	private Runnable playbackRunnable;
 	
 	public Metronome(MediaPlayer player) {
 		this(DEFAULT_SPEED, player);
@@ -32,7 +31,6 @@ public class Metronome {
 	
 	public Metronome(int speed, int accuracy, MediaPlayer player) {
 		playing = false;
-		lastTime = 0;
 		this.setAccuracy(accuracy);
 		this.setPlayer(player);
 		this.setSpeed(speed);
@@ -62,8 +60,6 @@ public class Metronome {
 			 duration = player.getDuration();
 		double beatLength = 60000.0 / speed;
 		delay = (int)Math.round(beatLength) - duration;
-		
-		Log.w("BadMetronome", "Delay = " + delay);
 		
 		return Math.max(delay, 0);
 	}
@@ -122,6 +118,10 @@ public class Metronome {
 
 	public void setPlayer(MediaPlayer player) {
 		this.player = player;
+	}
+	
+	public boolean isPlaying() {
+		return playing;
 	}
 	
 }
