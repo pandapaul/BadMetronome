@@ -3,41 +3,42 @@ package com.jpapps.badmetronome;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import android.graphics.Canvas;
-import android.media.MediaPlayer;
-import android.os.Handler;
-import android.util.Log;
+import android.media.AudioTrack;
 
 public class Metronome {
 	
-	public static final int DEFAULT_SPEED = 50;
+	public static final int DEFAULT_SPEED = 100;
 	public static final int MAX_ACCURACY = 100;
 	
-	private int speed, accuracy;
+	private int bpm, accuracy;
 	private boolean playing;
 	private byte[] sound;
+	private AudioTrack audioTrack;
+	private Runnable playbackRunnable;
+	private Thread playbackThread;
 	
-	public Metronome(byte[] sound) {
-		this(DEFAULT_SPEED, sound);
+	public Metronome(byte[] sound, AudioTrack audioTrack) {
+		this(DEFAULT_SPEED, sound, audioTrack);
 	}
 	
-	public Metronome(int speed, byte[] sound) {
-		this(speed, MAX_ACCURACY, sound);
+	public Metronome(int speed, byte[] sound, AudioTrack audioTrack) {
+		this(speed, MAX_ACCURACY, sound, audioTrack);
 	}
 	
-	public Metronome(int speed, int accuracy, byte[] sound) {
+	public Metronome(int speed, int accuracy, byte[] sound, AudioTrack audioTrack) {
 		playing = false;
 		this.setAccuracy(accuracy);
 		this.setSound(sound);
-		this.setSpeed(speed);
+		this.setBPM(speed);
+		this.setAudioTrack(audioTrack);
 	}
 
-	public int getSpeed() {
-		return speed;
+	public int getBPM() {
+		return bpm;
 	}
 
-	public void setSpeed(int speed) {
-		this.speed = speed;
+	public void setBPM(int speed) {
+		this.bpm = speed;
 	}
 
 	public int getAccuracy() {
@@ -48,21 +49,35 @@ public class Metronome {
 		this.accuracy = accuracy;
 	}
 	
-	private int calculateDelay() {
-		int delay = 0;
-		int duration = 0;
-		double beatLength = 60000.0 / speed;
-		delay = (int)Math.round(beatLength) - duration;
-		
-		return Math.max(delay, 0);
+	private byte[] buildSilence() {
+		int silenceLength = (int) ((60.0/bpm)*audioTrack.getSampleRate());
+		byte[] silence = new byte[silenceLength];
+		return silence;
 	}
 	
 	public void start() {
+		audioTrack.play();
+		
+		playbackRunnable = new Runnable() {
+			@Override
+			public void run() {		
+				while (playing) {
+					audioTrack.write(sound, 0, sound.length);
+					byte[] silence = buildSilence();
+					audioTrack.write(silence, 0, silence.length);
+		        }
+			}
+		};
+
+		playbackThread = new Thread(playbackRunnable);
+		playbackThread.start();
 		
 		playing = true;
 	}
 	
 	public void stop() {
+		audioTrack.pause();
+		audioTrack.flush();
 		playing = false;
 	}
 	
@@ -85,6 +100,14 @@ public class Metronome {
 
 	public void setSound(byte[] sound) {
 		this.sound = sound;
+	}
+
+	public AudioTrack getAudioTrack() {
+		return audioTrack;
+	}
+
+	public void setAudioTrack(AudioTrack audioTrack) {
+		this.audioTrack = audioTrack;
 	}
 	
 }

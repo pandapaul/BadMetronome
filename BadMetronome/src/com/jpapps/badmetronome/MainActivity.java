@@ -5,6 +5,9 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.app.Activity;
@@ -18,12 +21,14 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	
-	static final int TABLA_SNAP_BYTES = 17638;
+	static final int TABLA_SNAP_BYTES = 17594;
+	static final int WAV_INFO_BYTES = 44;
 	
 	SeekBar speedBar, accuracyBar;
 	TextView speedText, accuracyText;
 	Button playbackButton;
 	Metronome metronome;
+	AudioTrack audioTrack;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-				metronome.setSpeed(progress+1);
+				metronome.setBPM(progress+1);
 				speedText.setText(String.valueOf(progress+1));
 			}
 
@@ -89,17 +94,20 @@ public class MainActivity extends Activity {
 		//MediaPlayer player = MediaPlayer.create(this, R.raw.tablasnap);
 		//metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), player);
 		InputStream is = this.getResources().openRawResource(R.raw.tablasnap);
-		//BufferedInputStream bis = new BufferedInputStream(is, 8000);
-		//DataInputStream dis = new DataInputStream(bis);
 		
+		byte[] wavInfo = new byte[WAV_INFO_BYTES];
 		byte[] sound = new byte[TABLA_SNAP_BYTES];
+		
 		try {
+			is.read(wavInfo);
 			is.read(sound);
 		} catch (IOException e) {
 			Log.e("BadMetronome", "Error while reading in sound file.");
 		}
 		
-		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), sound);
+		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, 44100, AudioTrack.MODE_STREAM);
+		
+		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), sound, audioTrack);
 		
 		speedText.setText(String.valueOf(speedBar.getProgress()+1));
 		accuracyText.setText(String.valueOf(accuracyBar.getProgress()));
