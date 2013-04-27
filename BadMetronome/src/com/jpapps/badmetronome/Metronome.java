@@ -1,5 +1,6 @@
 package com.jpapps.badmetronome;
 
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +51,15 @@ public class Metronome {
 	}
 	
 	private byte[] buildSilence() {
-		int silenceLength = (int) ((60.0/bpm)*audioTrack.getSampleRate());
+		int error = 0;
+		if(this.accuracy < MAX_ACCURACY) {
+			double rando = new Random().nextDouble();
+			if(rando*100 > this.accuracy) {
+				//The drummer dun goofed
+				error = (int)((MAX_ACCURACY/100-(rando))*sound.length);
+			}
+		}
+		int silenceLength = (int) ((60.0/bpm)*audioTrack.getSampleRate()) + error;
 		byte[] silence = new byte[silenceLength];
 		return silence;
 	}
