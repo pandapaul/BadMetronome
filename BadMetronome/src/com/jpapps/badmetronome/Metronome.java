@@ -50,38 +50,45 @@ public class Metronome {
 		this.accuracy = accuracy;
 	}
 	
-	private byte[] buildSilence() {
+	private byte[] buildSpace() {
 		int error = 0;
 		if(this.accuracy < MAX_ACCURACY) {
-			double rando = new Random().nextDouble();
-			if(rando*100 > this.accuracy) {
-				//The drummer dun goofed
-				error = (int)((MAX_ACCURACY/100-(rando))*sound.length);
+			int errorRandom = new Random().nextInt(MAX_ACCURACY-1) + 1; //Generate a random number in the range 1 to MAX_ACCURACY
+			if(errorRandom > this.accuracy) {
+				//A mistake is going to occur
+				double errorRangeFactor = (errorRandom - this.accuracy)/MAX_ACCURACY;
+				
 			}
 		}
-		int silenceLength = (int) ((60.0/bpm)*audioTrack.getSampleRate()) + error;
-		byte[] silence = new byte[silenceLength];
-		return silence;
+		int beatLength = (int) (60.0/bpm)*audioTrack.getSampleRate();
+		int adjustment = sound.length + error;
+		int spaceLength = 0;
+		if(adjustment > beatLength) {
+			spaceLength = beatLength + adjustment;
+		} else {
+			spaceLength = beatLength - adjustment;
+		}
+		byte[] space = new byte[spaceLength];
+		return space;
 	}
 	
 	public void start() {
 		audioTrack.play();
+		playing = true;
 		
 		playbackRunnable = new Runnable() {
 			@Override
 			public void run() {		
 				while (playing) {
 					audioTrack.write(sound, 0, sound.length);
-					byte[] silence = buildSilence();
-					audioTrack.write(silence, 0, silence.length);
+					byte[] space = buildSpace();
+					audioTrack.write(space, 0, space.length);
 		        }
 			}
 		};
 
 		playbackThread = new Thread(playbackRunnable);
 		playbackThread.start();
-		
-		playing = true;
 	}
 	
 	public void stop() {
