@@ -5,11 +5,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import android.media.AudioTrack;
+import android.util.Log;
 
 public class Metronome {
 	
 	public static final int DEFAULT_SPEED = 100;
 	public static final int MAX_ACCURACY = 100;
+	public static final int MAX_LAG_BEATS = 4;
 	
 	private int bpm, accuracy;
 	private boolean playing;
@@ -50,24 +52,28 @@ public class Metronome {
 		this.accuracy = accuracy;
 	}
 	
-	private byte[] buildSpace() {
+	private byte[] buildSpace(int beatLength, int soundLength) {
 		int error = 0;
+		//Log.w("BadMetronome", "Sample Rate: " + audioTrack.getSampleRate() + "  Beat Length: " + beatLength + "  Sound Length: " + sound.length);
 		if(this.accuracy < MAX_ACCURACY) {
 			int errorRandom = new Random().nextInt(MAX_ACCURACY-1) + 1; //Generate a random number in the range 1 to MAX_ACCURACY
 			if(errorRandom > this.accuracy) {
 				//A mistake is going to occur
-				double errorRangeFactor = (errorRandom - this.accuracy)/MAX_ACCURACY;
-				
+				double errorRangeFactor = (double)(errorRandom - this.accuracy)/(double)MAX_ACCURACY;
+				double flip = new Random().nextDouble();
+				// 50/50 chance that the mistake is playing early or late
+				if(flip < 0.5 && beatLength > soundLength) {
+					//Too little space
+					error = (int) (-1 * Math.round(errorRangeFactor * (beatLength - soundLength)));
+					//Log.w("BadMetronome", "Playing early by " + error);
+				} else {
+					//Too much space
+					error = (int)(Math.round(errorRangeFactor * soundLength * MAX_LAG_BEATS));
+					//Log.w("BadMetronome", "Playing late by " + error);
+				}
 			}
 		}
-		int beatLength = (int) (60.0/bpm)*audioTrack.getSampleRate();
-		int adjustment = sound.length + error;
-		int spaceLength = 0;
-		if(adjustment > beatLength) {
-			spaceLength = beatLength + adjustment;
-		} else {
-			spaceLength = beatLength - adjustment;
-		}
+		int spaceLength = beatLength - soundLength + error;
 		byte[] space = new byte[spaceLength];
 		return space;
 	}
@@ -80,8 +86,12 @@ public class Metronome {
 			@Override
 			public void run() {		
 				while (playing) {
-					audioTrack.write(sound, 0, sound.length);
-					byte[] space = buildSpace();
+					int beatLength = (int) Math.round((60.0/bpm)*audioTrack.getSampleRate());
+					int soundLength = sound.length;
+					if(soundLength > beatLength)
+						soundLength = beatLength; //with higher BPMs, the full sound is too long
+					audioTrack.write(sound, 0, soundLength);
+					byte[] space = buildSpace(beatLength, soundLength);
 					audioTrack.write(space, 0, space.length);
 		        }
 			}
