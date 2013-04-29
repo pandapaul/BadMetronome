@@ -6,12 +6,13 @@ import java.util.logging.Logger;
 
 import android.media.AudioTrack;
 import android.util.Log;
+import android.widget.SeekBar;
 
 public class Metronome {
 	
 	public static final int DEFAULT_SPEED = 100;
 	public static final int MAX_ACCURACY = 100;
-	public static final int MAX_LAG_BEATS = 4;
+	public static final int MAX_LAG_BEATS = 1;
 	
 	private int bpm, accuracy;
 	private boolean playing;
@@ -19,21 +20,23 @@ public class Metronome {
 	private AudioTrack audioTrack;
 	private Runnable playbackRunnable;
 	private Thread playbackThread;
+	private SeekBar speedBar;
 	
 	public Metronome(byte[] sound, AudioTrack audioTrack) {
 		this(DEFAULT_SPEED, sound, audioTrack);
 	}
 	
 	public Metronome(int speed, byte[] sound, AudioTrack audioTrack) {
-		this(speed, MAX_ACCURACY, sound, audioTrack);
+		this(speed, MAX_ACCURACY, sound, audioTrack, null);
 	}
 	
-	public Metronome(int speed, int accuracy, byte[] sound, AudioTrack audioTrack) {
+	public Metronome(int speed, int accuracy, byte[] sound, AudioTrack audioTrack, SeekBar speedBar) {
 		playing = false;
 		this.setAccuracy(accuracy);
 		this.setSound(sound);
 		this.setBPM(speed);
 		this.setAudioTrack(audioTrack);
+		this.speedBar = speedBar; 
 	}
 
 	public int getBPM() {
@@ -54,7 +57,6 @@ public class Metronome {
 	
 	private byte[] buildSpace(int beatLength, int soundLength) {
 		int error = 0;
-		//Log.w("BadMetronome", "Sample Rate: " + audioTrack.getSampleRate() + "  Beat Length: " + beatLength + "  Sound Length: " + sound.length);
 		if(this.accuracy < MAX_ACCURACY) {
 			int errorRandom = new Random().nextInt(MAX_ACCURACY-1) + 1; //Generate a random number in the range 1 to MAX_ACCURACY
 			if(errorRandom > this.accuracy) {
@@ -65,11 +67,13 @@ public class Metronome {
 				if(flip < 0.5 && beatLength > soundLength) {
 					//Too little space
 					error = (int) (-1 * Math.round(errorRangeFactor * (beatLength - soundLength)));
-					//Log.w("BadMetronome", "Playing early by " + error);
+					this.bpm++;
+					speedBar.setProgress(bpm);
 				} else {
 					//Too much space
 					error = (int)(Math.round(errorRangeFactor * soundLength * MAX_LAG_BEATS));
-					//Log.w("BadMetronome", "Playing late by " + error);
+					this.bpm--;
+					speedBar.setProgress(bpm);
 				}
 			}
 		}

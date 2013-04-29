@@ -107,7 +107,7 @@ public class MainActivity extends Activity {
 		
 		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, 44100, AudioTrack.MODE_STREAM);
 		
-		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), sound, audioTrack);
+		metronome = new Metronome(speedBar.getProgress()+1, accuracyBar.getProgress(), sound, audioTrack, speedBar);
 		
 		speedText.setText(String.valueOf(speedBar.getProgress()+1));
 		accuracyText.setText(String.valueOf(accuracyBar.getProgress()));
