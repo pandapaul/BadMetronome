@@ -91,6 +91,7 @@ public class Metronome {
 			public void run() {		
 				while (playing) {
 					int beatLength = (int) Math.round((60.0/bpm)*audioTrack.getSampleRate());
+					beatLength = beatLength * 2;
 					int soundLength = sound.length;
 					if(soundLength > beatLength)
 						soundLength = beatLength; //with higher BPMs, the full sound is too long
